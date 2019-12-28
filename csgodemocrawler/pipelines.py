@@ -25,8 +25,3 @@ class EventResultsPipeline(object):
             # exporting event-manifest
             with open(file_name, 'w+') as fout:
                 fout.write(json.dumps(spider.event_manifest, indent=4))
-            return
-        pass
-
-    # def process_item(self, item, spider):
-    #     return item
