@@ -85,10 +85,8 @@ class EventResultsSpider(scrapy.Spider):
             m = re.match(r'^Best of ([0-9]{1})', match_format_raw.strip())
             match_format = m.group(1)
 
-        # if the match format was bo2 or higher,
-        #   there was a draft to select the maps
-        if match_format and int(match_format) > 1:
-            draft = scraping_functions.get_draft_info(response, team_names)
+        # TODO: could this produce a bug? :: check if there is draft info to be scraped
+        draft = scraping_functions.get_draft_info(response, team_names)
 
         # scraping results of maps played in this match
         maps_played = scraping_functions.get_played_maps_info(response)
