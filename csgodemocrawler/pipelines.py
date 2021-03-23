@@ -10,6 +10,7 @@ import json
 class EventResultsPipeline(object):
     def open_spider(self, spider):
         if spider.name == 'eventresults':
+            print('Initializing manifest dictionary')
             # initializing event-manifest dictionary
             spider.event_manifest = {}
 
@@ -21,7 +22,8 @@ class EventResultsPipeline(object):
             #    spider, we can confidently assume that all data
             #    pertaining to this event has been parsed and is
             #    available for exporting:
-            file_name = '-'.join(spider.event_manifest['event_name'].split(' ')) + '.json'
-            # exporting event-manifest
-            with open(file_name, 'w+') as fout:
-                fout.write(json.dumps(spider.event_manifest, indent=4))
+            if 'event_name' in spider.event_manifest:
+                file_name = '-'.join(spider.event_manifest['event_name'].split(' ')) + '.json'
+                # exporting event-manifest
+                with open(file_name, 'w+') as fout:
+                    fout.write(json.dumps(spider.event_manifest, indent=4))

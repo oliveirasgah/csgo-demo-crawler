@@ -10,9 +10,6 @@ class EventResultsSpider(scrapy.Spider):
     name = 'eventresults'
     allowed_domains = [ 'hltv.org' ]
 
-    # TODO:
-    # - Figure out whether we need to apply any anti-blocking strategies.
-
     def __init__(self, event_id, *args, **kwargs):
         ''' Constructor '''
         super(EventResultsSpider, self).__init__(*args, **kwargs)
@@ -23,11 +20,21 @@ class EventResultsSpider(scrapy.Spider):
 
     def start_requests(self):
         ''' Defines starting URL '''
-        yield scrapy.Request(self.start_url, self.scrape_event_page)
+        print(f'Bootstrapping initial request: url={self.start_url}; fn={self.scrape_event_page}')
+        yield scrapy.Request(
+            self.start_url,
+            callback=self.scrape_event_page,
+            errback=self.handle_request_error
+        )
 
+
+    def handle_request_error(self, failure):
+        ''' Handles errors in requests '''
+        print(failure)
 
     def scrape_event_page(self, response):
         ''' Scrapes event page for match URLs yields them as they're found '''
+        print('Scraping event page')
         # scraping event metadata
         event_name = scraping_functions.get_event_name(response)
         location = scraping_functions.get_location(response)
@@ -55,7 +62,7 @@ class EventResultsSpider(scrapy.Spider):
         # scraping event match URLs & yielding them to next step in pipeline
         for rel_match_url in scraping_functions.get_match_urls(response):
             abs_match_url = response.urljoin(rel_match_url)
-            yield scrapy.Request(abs_match_url, self.scrape_match_page)
+            yield scrapy.Request(abs_match_url, callback=self.scrape_match_page)
 
 
     def scrape_match_page(self, response):
