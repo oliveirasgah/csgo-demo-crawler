@@ -53,6 +53,7 @@ class EventResultsSpider(scrapy.Spider):
 
         # adding metadata to event-manifest dictionary
         self.event_manifest['event_id'] = self.event_id
+        self.event_manifest['event_url'] = self.start_url
         self.event_manifest['event_name'] = event_name
         self.event_manifest['location'] = location
         self.event_manifest['teams_amount'] = teams_amount
@@ -79,11 +80,9 @@ class EventResultsSpider(scrapy.Spider):
         m = re.search(r'\/matches\/([0-9]+)\/', response.url)
         match_id = m.group(1)
 
-        # scraping team names
-        team_names = scraping_functions.get_team_names(response)
-
-        team_1 = team_names[0]
-        team_2 = team_names[1]
+        # fetching lineup containers
+        lineups = scraping_functions.get_lineups(response)
+        print(f'Lineups: {lineups}')
 
         match_format_raw = scraping_functions.get_match_format(response)
 
@@ -93,6 +92,7 @@ class EventResultsSpider(scrapy.Spider):
             match_format = m.group(1)
 
         # TODO: could this produce a bug? :: check if there is draft info to be scraped
+        team_names = list(lineups.keys())
         draft = scraping_functions.get_draft_info(response, team_names)
 
         # scraping results of maps played in this match
@@ -100,7 +100,7 @@ class EventResultsSpider(scrapy.Spider):
 
         print()
         print(f'Match URL :: {response.url}')
-        print(f'Teams :: {team_1} VS {team_2}')
+        print(f'Teams :: {team_names[0]} VS {team_names[1]}')
         print(f'Match Format :: bo{str(match_format)}')
         print(json.dumps(draft, indent=4))
         print(json.dumps(maps_played, indent=4))
@@ -112,7 +112,7 @@ class EventResultsSpider(scrapy.Spider):
             'match_date': scraping_functions.get_match_date(response),
             'match_url': response.url,
             'gotv_demo_url': abs_gotv_demo_url,
-            'teams': team_names,
+            'lineups': lineups,
         }
 
         # saving draft info - if available

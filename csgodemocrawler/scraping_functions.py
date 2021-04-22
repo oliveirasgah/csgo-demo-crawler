@@ -50,6 +50,22 @@ get_team_names = lambda resp: resp\
     .xpath('//div[@class="match-page"]//div[@class="team"]//div[@class="teamName"]//text()')\
     .extract()
 
+# TODO: docs
+get_lineup_containers = lambda resp: resp\
+    .xpath('//div[contains(@class, "lineup") and @class != "lineups"]')
+
+# TODO: docs
+get_lineup_team = lambda container: container\
+    .xpath('./div/div/a[not(contains(@href, "rank"))]//text()')\
+    .get()
+
+# TODO: docs
+get_lineup_players = lambda container: container\
+    .xpath('.//td[@class="player"]/a/div/div//text()')\
+    .extract()
+
+# .xpath('./div[@class="players"]/table/tbody/tr/td[@class="player"]/a/div/div//text()')\
+
 # The match format (e.g. bo2, bo3..)
 get_match_format = lambda resp: resp\
     .xpath('//div[@class="match-page"]//div[contains(@class, "veto-box")][1]//div/text()')\
@@ -71,7 +87,7 @@ get_map_name = lambda container: container\
 
 # The results fo the map (within supplied container)
 get_map_results_container = lambda container: container\
-    .xpath('./div[@class="results"]//*[contains(@class, "results-teamname-container")]')
+    .xpath('./div[contains(@class, "results")]//*[contains(@class, "results-teamname-container")]')
 
 # The team name to whom this result pertains to
 get_map_result_teamname = lambda container: container\
@@ -161,4 +177,21 @@ def get_played_maps_info(response):
         played_maps.append(map_info)
 
     return played_maps
-        
+    
+
+def get_lineups(response):
+    ''' Parses the teams and players that compose the different
+    lineups competing in the match '''
+    lineups = {}
+    lineup_containers = get_lineup_containers(response)
+
+    for lineup_container in lineup_containers:
+        team_name = get_lineup_team(lineup_container)
+        if team_name not in lineups:
+            lineups[team_name] = []
+
+        players = get_lineup_players(lineup_container)
+        for player in players:
+            lineups[team_name].append(player)
+
+    return lineups
