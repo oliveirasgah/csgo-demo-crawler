@@ -4,7 +4,7 @@
 
 # The event name
 get_event_name = lambda resp: resp\
-    .xpath('//div[contains(@class, "eventname")]/text()')\
+    .xpath('//*[contains(@class, "event-hub-title")]/text()')\
     .get()
 
 # The location of the event

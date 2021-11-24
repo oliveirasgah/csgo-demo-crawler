@@ -30,7 +30,7 @@ class EventResultsSpider(scrapy.Spider):
 
     def handle_request_error(self, failure):
         ''' Handles errors in requests '''
-        print(failure)
+        print(f'[ERROR] Request failed due to: {failure}')
 
     def scrape_event_page(self, response):
         ''' Scrapes event page for match URLs yields them as they're found '''
